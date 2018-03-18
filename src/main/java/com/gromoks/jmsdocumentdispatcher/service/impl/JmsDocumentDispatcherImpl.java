@@ -4,6 +4,7 @@ import com.gromoks.jmsdocumentdispatcher.entity.Document;
 import com.gromoks.jmsdocumentdispatcher.service.JmsDocumentDispatcher;
 import com.gromoks.jmsdocumentdispatcher.service.JmsMessageService;
 import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.activemq.command.ActiveMQTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.jms.Queue;
+import javax.jms.Topic;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -25,6 +27,9 @@ public class JmsDocumentDispatcherImpl implements JmsDocumentDispatcher {
 
     @Value("${document.queue}")
     private String queueName;
+
+    @Value("${document.topic}")
+    private String topicName;
 
     private JmsMessageService jmsMessageService;
 
@@ -60,5 +65,16 @@ public class JmsDocumentDispatcherImpl implements JmsDocumentDispatcher {
 
         log.debug("Finish to get document by id");
         return receivedDocument;
+    }
+
+    @Override
+    public List<Document> getByKeyWords(List<String> keyWordList) {
+        log.debug("Start to search documents by key words: {}" + keyWordList);
+
+        Topic topic = new ActiveMQTopic(topicName);
+        String requestId = UUID.randomUUID().toString();
+        jmsMessageService.publishKeyWords(topic, keyWordList, requestId);
+
+        return null;
     }
 }

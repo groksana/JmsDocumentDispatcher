@@ -11,6 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Controller
 @RequestMapping(value = "/document", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class DocumentController {
@@ -30,7 +33,7 @@ public class DocumentController {
 
         documentService.add(document);
 
-        log.info("Document has been added. It tooks {} ms", System.currentTimeMillis() - startTime);
+        log.info("Document has been added. It took {} ms", System.currentTimeMillis() - startTime);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -41,8 +44,19 @@ public class DocumentController {
 
         Document document = documentService.getById(documentId);
 
-        log.info("Movies are received. It tooks {} ms", System.currentTimeMillis() - startTime);
+        log.info("Movies are received. It took {} ms", System.currentTimeMillis() - startTime);
         return new ResponseEntity<>(document, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<?> getByKeyWords(@RequestBody List<String> keyWordList) {
+        log.info("Sending request to get document by key words");
+        long startTime = System.currentTimeMillis();
+
+        List<Document> documents = documentService.getByKeyWords(keyWordList);
+
+        log.info("Documents have been found. It took {} ms", System.currentTimeMillis() - startTime);
+        return new ResponseEntity<Object>(documents, HttpStatus.OK);
     }
 
 }

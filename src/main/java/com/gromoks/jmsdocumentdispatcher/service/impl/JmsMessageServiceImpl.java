@@ -6,12 +6,14 @@ import org.apache.activemq.command.ActiveMQQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.stereotype.Service;
 
 import javax.jms.*;
+import java.util.List;
 import java.util.UUID;
 
 import static com.gromoks.jmsdocumentdispatcher.util.JsonJacksonConverter.parseValue;
@@ -22,15 +24,16 @@ public class JmsMessageServiceImpl implements JmsMessageService {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+    @Autowired
+    @Qualifier("jmsTemplate")
     private JmsTemplate jmsTemplate;
+
+    @Autowired
+    @Qualifier("jmsTopicTemplate")
+    private JmsTemplate jmsTopicTemplate;
 
     @Value("${document.queue.response}")
     private String responseQueueName;
-
-    @Autowired
-    public JmsMessageServiceImpl(JmsTemplate jmsTemplate) {
-        this.jmsTemplate = jmsTemplate;
-    }
 
     @Override
     public String add(Destination destination, Document document) {
@@ -103,6 +106,23 @@ public class JmsMessageServiceImpl implements JmsMessageService {
 
         log.debug("Finish to process document. It took {} ms", System.currentTimeMillis() - startTime);
         return receivedDocument;
+    }
+
+    @Override
+    public void publishKeyWords(Destination destination, List<String> keyWordList, String requestId) {
+        log.debug("Start to publish key words for document search: {}", keyWordList);
+        long startTime = System.currentTimeMillis();
+
+        jmsTopicTemplate.send(destination, new MessageCreator() {
+            @Override
+            public Message createMessage(Session session) throws JMSException {
+                Message message = session.createTextMessage(toJson(keyWordList));
+                message.setStringProperty("requestId", requestId);
+                return message;
+            }
+        });
+
+        log.debug("Finish to publish key words for document search. It took {} ms", System.currentTimeMillis() - startTime);
     }
 }
 
