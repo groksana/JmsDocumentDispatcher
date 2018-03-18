@@ -5,5 +5,7 @@ import com.gromoks.jmsdocumentdispatcher.entity.Document;
 import javax.jms.Destination;
 
 public interface JmsMessageService {
-    String send(Destination destination, Document document);
+    String add(Destination destination, Document document);
+
+    Document getById(Destination destination, String documentId, String targetConsumer);
 }

@@ -23,4 +23,9 @@ public class DocumentServiceImpl implements DocumentService {
     public void add(Document document) {
         jmsDocumentDispatcher.add(document);
     }
+
+    @Override
+    public Document getById(String documentId) {
+        return jmsDocumentDispatcher.getById(documentId);
+    }
 }

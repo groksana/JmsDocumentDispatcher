@@ -9,9 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping(value = "/document", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -35,4 +33,16 @@ public class DocumentController {
         log.info("Document has been added. It tooks {} ms", System.currentTimeMillis() - startTime);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/{documentId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getById(@PathVariable String documentId) {
+        log.info("Sending request to get document by id = {}", documentId);
+        long startTime = System.currentTimeMillis();
+
+        Document document = documentService.getById(documentId);
+
+        log.info("Movies are received. It tooks {} ms", System.currentTimeMillis() - startTime);
+        return new ResponseEntity<>(document, HttpStatus.OK);
+    }
+
 }

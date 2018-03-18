@@ -41,12 +41,24 @@ public class JmsDocumentDispatcherImpl implements JmsDocumentDispatcher {
 
         String documentId = UUID.randomUUID().toString();
         document.setDocumentId(documentId);
-        String databaseName = jmsMessageService.send(requestQueue, document);
+        String databaseName = jmsMessageService.add(requestQueue, document);
 
         log.debug("Get destination Database name = {} for processed document", databaseName);
 
         documentMap.put(documentId, databaseName);
 
         log.debug("Finish to add document by dispatcher");
+    }
+
+    @Override
+    public Document getById(String documentId) {
+        log.debug("Start to get document by id = {}" + documentId);
+
+        Queue requestQueue = new ActiveMQQueue(queueName);
+        String targetDatabaseName = documentMap.get(documentId);
+        Document receivedDocument = jmsMessageService.getById(requestQueue, documentId, targetDatabaseName);
+
+        log.debug("Finish to get document by id");
+        return receivedDocument;
     }
 }

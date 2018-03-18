@@ -4,4 +4,6 @@ import com.gromoks.jmsdocumentdispatcher.entity.Document;
 
 public interface DocumentService {
     void add(Document document);
+
+    Document getById(String documentId);
 }

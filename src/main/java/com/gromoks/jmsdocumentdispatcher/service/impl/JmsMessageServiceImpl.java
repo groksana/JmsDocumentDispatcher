@@ -33,7 +33,7 @@ public class JmsMessageServiceImpl implements JmsMessageService {
     }
 
     @Override
-    public String send(Destination destination, Document document) {
+    public String add(Destination destination, Document document) {
         log.debug("Start to process document with id = {}", document.getDocumentId());
         long startTime = System.currentTimeMillis();
 
@@ -45,7 +45,7 @@ public class JmsMessageServiceImpl implements JmsMessageService {
                 Message message = session.createTextMessage(toJson(document));
                 message.setJMSReplyTo(new ActiveMQQueue(responseQueueName));
                 message.setJMSCorrelationID(correlationID);
-                message.setStringProperty("add", "anyDatabase");
+                message.setStringProperty("operation", "add.AnyDatabase");
                 return message;
             }
         });
@@ -58,8 +58,6 @@ public class JmsMessageServiceImpl implements JmsMessageService {
         if (message instanceof TextMessage) {
             try {
                 databaseName = message.getStringProperty("database");
-                String loadedMessage = ((TextMessage) message).getText();
-                Document receivedDocument = parseValue(loadedMessage, Document.class);
             } catch (JMSException e) {
                 log.error("Can't get JMS message with error: {}", e);
                 throw new RuntimeException(e);
@@ -68,6 +66,43 @@ public class JmsMessageServiceImpl implements JmsMessageService {
 
         log.debug("Finish to process document. It took {} ms", System.currentTimeMillis() - startTime);
         return databaseName;
+    }
+
+    @Override
+    public Document getById(Destination destination, String documentId, String targetConsumer) {
+        log.debug("Start to process document with id = {}", documentId);
+        long startTime = System.currentTimeMillis();
+
+        String correlationID = UUID.randomUUID().toString();
+
+        jmsTemplate.send(destination, new MessageCreator() {
+            @Override
+            public Message createMessage(Session session) throws JMSException {
+                Message message = session.createTextMessage(documentId);
+                message.setJMSReplyTo(new ActiveMQQueue(responseQueueName));
+                message.setJMSCorrelationID(correlationID);
+                message.setStringProperty("operation", "get." + targetConsumer);
+                return message;
+            }
+        });
+
+        Queue responseQueue = new ActiveMQQueue(responseQueueName);
+
+        String filter = "JMSCorrelationID = '" + correlationID + "'";
+        Message message = jmsTemplate.receiveSelected(responseQueue, filter);
+        Document receivedDocument = null;
+        if (message instanceof TextMessage) {
+            try {
+                String loadedMessage = ((TextMessage) message).getText();
+                receivedDocument = parseValue(loadedMessage, Document.class);
+            } catch (JMSException e) {
+                log.error("Can't get JMS message with error: {}", e);
+                throw new RuntimeException(e);
+            }
+        }
+
+        log.debug("Finish to process document. It took {} ms", System.currentTimeMillis() - startTime);
+        return receivedDocument;
     }
 }
 
