@@ -10,4 +10,6 @@ public interface JmsDocumentDispatcher {
     Document getById(String documentId);
 
     List<Document> getByKeyWords(List<String> keyWordList);
+
+    void processSearchResponse(List<Document> documentList, String requestId);
 }
