@@ -38,12 +38,4 @@
         <property name="pubSubDomain" value="true"/>
     </bean>
 
-    <!-- =============================================== -->
-    <!-- JMS receive, define JmsListenerContainerFactory -->
-    <!-- =============================================== -->
-    <bean id="jmsListenerContainerFactory"
-          class="org.springframework.jms.config.DefaultJmsListenerContainerFactory">
-        <property name="connectionFactory" ref="connectionFactory" />
-        <property name="concurrency" value="3-10"/>
-    </bean>
 </beans>
