@@ -13,7 +13,7 @@ import javax.jms.ConnectionFactory;
 public class MessagingListenerConfiguration {
 
     @Autowired
-    ConnectionFactory connectionFactory;
+    private ConnectionFactory connectionFactory;
 
     @Bean
     public DefaultJmsListenerContainerFactory jmsListenerContainerFactory() {

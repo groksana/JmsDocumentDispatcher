@@ -24,16 +24,18 @@ public class JmsMessageServiceImpl implements JmsMessageService {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    @Autowired
-    @Qualifier("jmsTemplate")
     private JmsTemplate jmsTemplate;
 
-    @Autowired
-    @Qualifier("jmsTopicTemplate")
     private JmsTemplate jmsTopicTemplate;
 
     @Value("${document.queue.response}")
     private String responseQueueName;
+
+    @Autowired
+    public JmsMessageServiceImpl(@Qualifier("jmsTemplate") JmsTemplate jmsTemplate, @Qualifier("jmsTopicTemplate") JmsTemplate jmsTopicTemplate) {
+        this.jmsTemplate = jmsTemplate;
+        this.jmsTopicTemplate = jmsTopicTemplate;
+    }
 
     @Override
     public String add(Destination destination, Document document) {
