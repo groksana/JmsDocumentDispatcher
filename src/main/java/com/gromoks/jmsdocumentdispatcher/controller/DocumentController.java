@@ -28,6 +28,7 @@ public class DocumentController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<?> add(@RequestBody Document document) {
         log.info("Sending request to add document");
+        log.debug("Document {}", document);
         long startTime = System.currentTimeMillis();
 
         documentService.add(document);
@@ -36,12 +37,12 @@ public class DocumentController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{documentId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getById(@PathVariable String documentId) {
-        log.info("Sending request to get document by id = {}", documentId);
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public ResponseEntity<?> getById(@PathVariable String id) {
+        log.info("Sending request to get document by id = {}", id);
         long startTime = System.currentTimeMillis();
 
-        Document document = documentService.getById(documentId);
+        Document document = documentService.getById(id);
 
         log.info("Movies are received. It took {} ms", System.currentTimeMillis() - startTime);
         return new ResponseEntity<>(document, HttpStatus.OK);

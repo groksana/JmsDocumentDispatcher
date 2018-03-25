@@ -1,33 +1,32 @@
 package com.gromoks.jmsdocumentdispatcher.entity;
 
-import java.io.Serializable;
 import java.util.List;
 
 public class Document {
-    private String documentId;
-    private List<String> context;
+    private String id;
+    private List<String> content;
 
-    public String getDocumentId() {
-        return documentId;
+    public String getId() {
+        return id;
     }
 
-    public void setDocumentId(String documentId) {
-        this.documentId = documentId;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public List<String> getContext() {
-        return context;
+    public List<String> getContent() {
+        return content;
     }
 
-    public void setContext(List<String> context) {
-        this.context = context;
+    public void setContent(List<String> content) {
+        this.content = content;
     }
 
     @Override
     public String toString() {
         return "Document{" +
-                "documentId=" + documentId +
-                ", context=" + context +
+                "id=" + id +
+                ", content=" + content +
                 '}';
     }
 }

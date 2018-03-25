@@ -39,7 +39,7 @@ public class JmsMessageServiceImpl implements JmsMessageService {
 
     @Override
     public String add(Destination destination, Document document) {
-        log.debug("Start to process document with id = {}", document.getDocumentId());
+        log.debug("Start to process document with id = {}", document.getId());
         long startTime = System.currentTimeMillis();
 
         String correlationID = UUID.randomUUID().toString();
