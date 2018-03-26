@@ -1,7 +1,7 @@
 package com.gromoks.jmsdocumentdispatcher.service.impl;
 
 import com.gromoks.jmsdocumentdispatcher.entity.Document;
-import com.gromoks.jmsdocumentdispatcher.service.JmsDocumentDispatcher;
+import com.gromoks.jmsdocumentdispatcher.service.DocumentDispatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,15 +21,15 @@ public class JmsMessageListener implements MessageListener {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private JmsDocumentDispatcher jmsDocumentDispatcher;
+    private DocumentDispatcher documentDispatcher;
 
     @Autowired
-    public JmsMessageListener(JmsDocumentDispatcher jmsDocumentDispatcher) {
-        this.jmsDocumentDispatcher = jmsDocumentDispatcher;
+    public JmsMessageListener(DocumentDispatcher documentDispatcher) {
+        this.documentDispatcher = documentDispatcher;
     }
 
     @Override
-    @JmsListener(destination = "${document.subscriber.queue}")
+    @JmsListener(destination = "${jms.document.search.response.queue}")
     public void onMessage(Message message) {
         try {
             log.debug("!!!Start to process message with id = {}", message.getJMSMessageID());
@@ -43,7 +43,7 @@ public class JmsMessageListener implements MessageListener {
                 foundDocumentList = parseValue(documentList, List.class);
             }
 
-            jmsDocumentDispatcher.processSearchResponse(foundDocumentList, requestId);
+            documentDispatcher.processSearchResponse(foundDocumentList, requestId);
         } catch (JMSException e) {
             log.error("Can't get JMS message with error: {}", e);
             throw new RuntimeException(e);

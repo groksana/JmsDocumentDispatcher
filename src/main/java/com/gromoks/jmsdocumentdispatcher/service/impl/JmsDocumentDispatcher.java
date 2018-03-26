@@ -1,18 +1,14 @@
 package com.gromoks.jmsdocumentdispatcher.service.impl;
 
 import com.gromoks.jmsdocumentdispatcher.entity.Document;
-import com.gromoks.jmsdocumentdispatcher.service.JmsDocumentDispatcher;
-import com.gromoks.jmsdocumentdispatcher.service.JmsMessageService;
-import org.apache.activemq.command.ActiveMQQueue;
-import org.apache.activemq.command.ActiveMQTopic;
+import com.gromoks.jmsdocumentdispatcher.service.DocumentDispatcher;
+import com.gromoks.jmsdocumentdispatcher.service.MessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.jms.Queue;
-import javax.jms.Topic;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -21,7 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
-public class JmsDocumentDispatcherImpl implements JmsDocumentDispatcher {
+public class JmsDocumentDispatcher implements DocumentDispatcher {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -31,28 +27,23 @@ public class JmsDocumentDispatcherImpl implements JmsDocumentDispatcher {
 
     private final Map<String, Integer> requestProcessingMap = new ConcurrentHashMap<>();
 
-    @Value("${document.queue}")
-    private String queueName;
-
-    @Value("${document.topic}")
+    @Value("${jms.document.search.request.topic}")
     private String topicName;
 
-    private JmsMessageService jmsMessageService;
+    private MessageService messageService;
 
     @Autowired
-    public JmsDocumentDispatcherImpl(JmsMessageService jmsMessageService) {
-        this.jmsMessageService = jmsMessageService;
+    public JmsDocumentDispatcher(MessageService messageService) {
+        this.messageService = messageService;
     }
 
     @Override
     public void add(Document document) {
         log.debug("Start to add document by dispatcher");
 
-        Queue requestQueue = new ActiveMQQueue(queueName);
-
         String documentId = UUID.randomUUID().toString();
         document.setId(documentId);
-        String databaseName = jmsMessageService.add(requestQueue, document);
+        String databaseName = messageService.add(document);
 
         log.debug("Get destination Database name = {} for processed document", databaseName);
 
@@ -65,9 +56,8 @@ public class JmsDocumentDispatcherImpl implements JmsDocumentDispatcher {
     public Document getById(String documentId) {
         log.debug("Start to get document by id = {}" + documentId);
 
-        Queue requestQueue = new ActiveMQQueue(queueName);
         String targetDatabaseName = documentMap.get(documentId);
-        Document receivedDocument = jmsMessageService.getById(requestQueue, documentId, targetDatabaseName);
+        Document receivedDocument = messageService.getById(documentId, targetDatabaseName);
 
         log.debug("Finish to get document by id");
         return receivedDocument;
@@ -78,9 +68,8 @@ public class JmsDocumentDispatcherImpl implements JmsDocumentDispatcher {
         log.debug("Start to search documents by key words: {}" + keyWordList);
         long startTime = System.currentTimeMillis();
 
-        Topic topic = new ActiveMQTopic(topicName);
         String requestId = UUID.randomUUID().toString();
-        jmsMessageService.publishKeyWords(topic, keyWordList, requestId);
+        messageService.publishKeyWords(keyWordList, requestId);
 
         long consumerCount = documentMap.values().stream().distinct().count();
         Integer responseCount = requestProcessingMap.get(requestId) == null ? 0 : requestProcessingMap.get(requestId);
