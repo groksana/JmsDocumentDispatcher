@@ -71,7 +71,7 @@ public class JmsMessageService implements MessageService {
             databaseName = message.getStringProperty("database");
         } catch (JMSException e) {
             log.error("Can't get JMS message with error: {}", e);
-            throw new RuntimeException(e);
+            throw new RuntimeException("Can't get JMS message with error: ", e);
         }
 
         log.debug("Finish to process document. It took {} ms", System.currentTimeMillis() - startTime);
@@ -102,7 +102,7 @@ public class JmsMessageService implements MessageService {
             receivedDocument = parseValue(loadedMessage, Document.class);
         } catch (JMSException e) {
             log.error("Can't get JMS message with error: {}", e);
-            throw new RuntimeException(e);
+            throw new RuntimeException("Can't get JMS message with error: ", e);
         }
 
         log.debug("Finish to process document. It took {} ms", System.currentTimeMillis() - startTime);

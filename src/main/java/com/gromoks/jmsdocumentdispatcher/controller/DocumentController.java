@@ -1,7 +1,7 @@
 package com.gromoks.jmsdocumentdispatcher.controller;
 
 import com.gromoks.jmsdocumentdispatcher.entity.Document;
-import com.gromoks.jmsdocumentdispatcher.service.DocumentService;
+import com.gromoks.jmsdocumentdispatcher.service.DocumentDispatcherService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +18,11 @@ import java.util.List;
 public class DocumentController {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private DocumentService documentService;
+    private DocumentDispatcherService documentDispatcherService;
 
     @Autowired
-    public DocumentController(DocumentService documentService) {
-        this.documentService = documentService;
+    public DocumentController(DocumentDispatcherService documentDispatcherService) {
+        this.documentDispatcherService = documentDispatcherService;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -31,7 +31,7 @@ public class DocumentController {
         log.debug("Document {}", document);
         long startTime = System.currentTimeMillis();
 
-        documentService.add(document);
+        documentDispatcherService.add(document);
 
         log.info("Document has been added. It took {} ms", System.currentTimeMillis() - startTime);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -42,7 +42,7 @@ public class DocumentController {
         log.info("Sending request to get document by id = {}", id);
         long startTime = System.currentTimeMillis();
 
-        Document document = documentService.getById(id);
+        Document document = documentDispatcherService.getById(id);
 
         log.info("Movies are received. It took {} ms", System.currentTimeMillis() - startTime);
         return new ResponseEntity<>(document, HttpStatus.OK);
@@ -53,7 +53,7 @@ public class DocumentController {
         log.info("Sending request to get document by key words");
         long startTime = System.currentTimeMillis();
 
-        List<Document> documents = documentService.getByKeyWords(keyWordList);
+        List<Document> documents = documentDispatcherService.getByKeyWords(keyWordList);
 
         log.info("Documents have been found. It took {} ms", System.currentTimeMillis() - startTime);
         return new ResponseEntity<Object>(documents, HttpStatus.OK);

@@ -1,7 +1,7 @@
 package com.gromoks.jmsdocumentdispatcher.service.impl;
 
 import com.gromoks.jmsdocumentdispatcher.entity.Document;
-import com.gromoks.jmsdocumentdispatcher.service.DocumentDispatcher;
+import com.gromoks.jmsdocumentdispatcher.service.DocumentDispatcherService;
 import com.gromoks.jmsdocumentdispatcher.service.MessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
-public class JmsDocumentDispatcher implements DocumentDispatcher {
+public class JmsDocumentDispatcherService implements DocumentDispatcherService {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -33,7 +33,7 @@ public class JmsDocumentDispatcher implements DocumentDispatcher {
     private MessageService messageService;
 
     @Autowired
-    public JmsDocumentDispatcher(MessageService messageService) {
+    public JmsDocumentDispatcherService(MessageService messageService) {
         this.messageService = messageService;
     }
 
@@ -78,7 +78,7 @@ public class JmsDocumentDispatcher implements DocumentDispatcher {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 log.error("The thread has been interrupted: {}", e);
-                throw new RuntimeException(e);
+                throw new RuntimeException("The thread has been interrupted:", e);
             }
             responseCount = requestProcessingMap.get(requestId) == null ? 0 : requestProcessingMap.get(requestId);
         }
