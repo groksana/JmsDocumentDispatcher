@@ -84,6 +84,8 @@ public class JmsDocumentDispatcherService implements DocumentDispatcherService {
         }
 
         List<Document> foundDocument = documentResponseMap.get(requestId);
+        requestProcessingMap.remove(requestId);
+        documentResponseMap.remove(requestId);
 
         log.debug("Finish to search documents by key words");
         return foundDocument;
@@ -98,6 +100,6 @@ public class JmsDocumentDispatcherService implements DocumentDispatcherService {
                 .collect(Collectors.toList()));
         requestProcessingMap.merge(requestId, 1, (v1, v2) -> v1 + v2);
 
-        log.debug("Finish to process response by requestId: {}" + requestId);
+        log.debug("Finish to process response by requestId: {}", requestId);
     }
 }
