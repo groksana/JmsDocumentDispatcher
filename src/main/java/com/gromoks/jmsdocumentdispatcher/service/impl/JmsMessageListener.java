@@ -36,14 +36,18 @@ public class JmsMessageListener implements MessageListener {
 
             List<Document> foundDocumentList = null;
             String requestId = message.getStringProperty("requestId");
+            Boolean acknowledgment  = message.getBooleanProperty("acknowledgment");
 
-            if (message instanceof TextMessage) {
-                TextMessage textMessage = (TextMessage) message;
-                String documentList = textMessage.getText();
-                foundDocumentList = parseValue(documentList, List.class);
+            if (acknowledgment) {
+                documentDispatcherService.processSearchAcknowledgmentResponse(requestId);
+            } else {
+                if (message instanceof TextMessage) {
+                    TextMessage textMessage = (TextMessage) message;
+                    String documentList = textMessage.getText();
+                    foundDocumentList = parseValue(documentList, List.class);
+                }
+                documentDispatcherService.processSearchResponse(foundDocumentList, requestId);
             }
-
-            documentDispatcherService.processSearchResponse(foundDocumentList, requestId);
         } catch (JMSException e) {
             log.error("Can't get JMS message with error: {}", e);
             throw new RuntimeException("Can't get JMS message with error: ", e);

@@ -12,4 +12,6 @@ public interface DocumentDispatcherService {
     List<Document> getByKeyWords(List<String> keyWordList);
 
     void processSearchResponse(List<Document> documentList, String requestId);
+
+    void processSearchAcknowledgmentResponse(String requestId);
 }

@@ -27,6 +27,8 @@ public class JmsDocumentDispatcherService implements DocumentDispatcherService {
 
     private final Map<String, Integer> requestProcessingMap = new ConcurrentHashMap<>();
 
+    private final Map<String, Integer> requestSubmitMap = new ConcurrentHashMap<>();
+
     @Value("${jms.document.search.request.topic}")
     private String topicName;
 
@@ -71,7 +73,15 @@ public class JmsDocumentDispatcherService implements DocumentDispatcherService {
         String requestId = UUID.randomUUID().toString();
         messageService.publishKeyWords(keyWordList, requestId);
 
-        long consumerCount = documentMap.values().stream().distinct().count();
+        long consumerCount;
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            log.error("The thread has been interrupted: {}", e);
+            throw new RuntimeException("The thread has been interrupted:", e);
+        }
+        consumerCount = requestSubmitMap.get(requestId) == null ? 0 : requestSubmitMap.get(requestId);
+
         Integer responseCount = requestProcessingMap.get(requestId) == null ? 0 : requestProcessingMap.get(requestId);
         while (responseCount < consumerCount || (System.currentTimeMillis() - startTime) < 5000) {
             try {
@@ -101,5 +111,14 @@ public class JmsDocumentDispatcherService implements DocumentDispatcherService {
         requestProcessingMap.merge(requestId, 1, (v1, v2) -> v1 + v2);
 
         log.debug("Finish to process response by requestId: {}", requestId);
+    }
+
+    @Override
+    public void processSearchAcknowledgmentResponse(String requestId) {
+        log.debug("Start to process acknowledgment response by requestId: {}" + requestId);
+
+        requestSubmitMap.merge(requestId, 1, (v1, v2) -> v1 + v2);
+
+        log.debug("Finish to process acknowledgment response by requestId: {}", requestId);
     }
 }
