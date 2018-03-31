@@ -22,6 +22,8 @@ import static com.gromoks.jmsdocumentdispatcher.util.JsonJacksonConverter.toJson
 @Service
 public class JmsMessageService implements MessageService {
 
+    private static final Long RECEIVED_TIME_OUT = 5000L;
+
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private JmsTemplate jmsTemplate;
@@ -55,6 +57,8 @@ public class JmsMessageService implements MessageService {
 
         String correlationID = UUID.randomUUID().toString();
 
+        jmsTemplate.setReceiveTimeout(RECEIVED_TIME_OUT);
+
         jmsTemplate.send(requestQueue, session -> {
             Message message = session.createTextMessage(toJson(document));
             message.setJMSReplyTo(responseQueue);
@@ -84,6 +88,8 @@ public class JmsMessageService implements MessageService {
         long startTime = System.currentTimeMillis();
 
         String correlationID = UUID.randomUUID().toString();
+
+        jmsTemplate.setReceiveTimeout(RECEIVED_TIME_OUT);
 
         jmsTemplate.send(requestQueue, session -> {
             Message message = session.createTextMessage(documentId);
